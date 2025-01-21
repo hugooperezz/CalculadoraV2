@@ -65,6 +65,7 @@ public class Engine extends JFrame implements ActionListener {
 	// Almacenar temporalmente ciertos valores
 	private double num1, num2, result;
 	private char operation;
+	private boolean resultadoMostrado = false; // Nuevo flag para saber si un resultado fue mostrado
 	
 	/**
 	 * 
@@ -233,103 +234,63 @@ public class Engine extends JFrame implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		String comando = e.getActionCommand(); // Contiene el contenido del boton
-		String textoActual = this.pantalla.getText();
-		switch (comando) {
-		case "0":
-			this.pantalla.setText(this.pantalla.getText() + comando);
-			break;
-		case "1":
-			this.pantalla.setText(this.pantalla.getText() + comando);
-			break;
-		case "2":
-			this.pantalla.setText(this.pantalla.getText() + comando);
-			break;
-		case "3":
-			this.pantalla.setText(this.pantalla.getText() + comando);
-			break;
-		case "4":
-			this.pantalla.setText(this.pantalla.getText() + comando);
-			break;
-		case "5":
-			this.pantalla.setText(this.pantalla.getText() + comando);
-			break;
-		case "6":
-			this.pantalla.setText(this.pantalla.getText() + comando);
-			break;
-		case "7":
-			this.pantalla.setText(this.pantalla.getText() + comando);
-			break;
-		case "8":
-			this.pantalla.setText(this.pantalla.getText() + comando);
-			break;
-		case "9":
-			this.pantalla.setText(this.pantalla.getText() + comando);
-			break;
-		case "+":
-			if (!this.pantalla.getText().isEmpty()) {
-				this.num1 = Double.parseDouble(pantalla.getText());
-				this.operation = comando.charAt(0);
-				this.pantalla.setText(""); // Limpiar la pantalla para el segundo número
-			}
-			break;
-		case "-":
-			if (!this.pantalla.getText().isEmpty()) {
-				this.num1 = Double.parseDouble(pantalla.getText());
-				this.operation = comando.charAt(0);
-				this.pantalla.setText(""); // Limpiar la pantalla para el segundo número
-			} else {
-				this.pantalla.setText(this.pantalla.getText() + comando);
-				this.num1 = this.num1 * -1;
-			}
-			break;
-		case "/":
-			if (!this.pantalla.getText().isEmpty()) {
-				this.num1 = Double.parseDouble(pantalla.getText());
-				this.operation = comando.charAt(0);
-				this.pantalla.setText(""); // Limpiar la pantalla para el segundo número
-			}
-			break;
-		case "*":
-			if (!this.pantalla.getText().isEmpty()) {
-				this.num1 = Double.parseDouble(pantalla.getText());
-				this.operation = comando.charAt(0);
-				this.pantalla.setText(""); // Limpiar la pantalla para el segundo número
-			}
-			break;
-		case "=":
-			if (!this.pantalla.getText().isEmpty()) {
-				this.num2 = Double.parseDouble(pantalla.getText());
-				if (this.operation == '/' && this.num2 <= 0) {
-					this.pantalla.setText("Error: No se puede dividir entre 0");
-				} else {
-					this.result = operacion();
-					String resultadoReducido = String.format("%.2f", this.result);// Variable que limita los decimales
-																					// del atributo resultado a 2
-																					// decimales
-					this.pantalla.setText(resultadoReducido);
-				}
-
-			}
-			break;
-		case "C":
-			// Reinicio la pantalla y pongo los numeros a 0
-			this.pantalla.setText("");
-			this.num1 = 0;
-			this.num2 = 0;
-			break;
-		case "\u2190":
-			if (!textoActual.isEmpty()) {
-				this.pantalla.setText(textoActual.substring(0, textoActual.length() - 1));
-			}
-			break;
-		case ".":
-			this.pantalla.setText(this.pantalla.getText() + comando);
-			break;
-		default:
-		}
-
+	    String comando = e.getActionCommand(); // Contiene el contenido del botón
+	    String textoActual = this.pantalla.getText();
+	    switch (comando) {
+	        case "0": case "1": case "2": case "3": case "4": case "5":
+	        case "6": case "7": case "8": case "9": case ".":
+	            this.pantalla.setText(this.pantalla.getText() + comando);
+	            break;
+	        case "+": case "-": case "*": case "/":
+	        	if (!textoActual.isEmpty()) {
+	                if (textoActual.matches(".*[0-9.]$")) { // Si el texto termina en un número
+	                    this.pantalla.setText(textoActual + " " + comando + " ");
+	                } else {
+	                    this.pantalla.setText(textoActual.substring(0, textoActual.length() - 3) + " " + comando + " ");
+	                }
+	            } else if (this.num1 != 0) { // Usar el resultado previo como num1 si está disponible
+	                this.pantalla.setText(this.num1 + " " + comando + " ");
+	            }
+	            break;
+	        case "=":
+	            if (!this.pantalla.getText().isEmpty()) {
+	                // Separar la operación de la pantalla
+	                String[] partes = this.pantalla.getText().split(" ");
+	                if (partes.length == 3) { // Asegurar que hay formato correcto (num1 operador num2)
+	                    try {
+	                        this.num1 = Double.parseDouble(partes[0].replace(",", "."));
+	                        this.operation = partes[1].charAt(0);
+	                        this.num2 = Double.parseDouble(partes[2]);
+	                        if (this.operation == '/' && this.num2 == 0) {
+	                            this.pantalla.setText("Error: No se puede dividir entre 0");
+	                        } else {
+	                            this.result = operacion();
+	                            String resultadoReducido = String.format("%.2f", this.result); // Limitar a 2 decimales
+	                            this.pantalla.setText(resultadoReducido);
+	                        }
+	                    } catch (NumberFormatException ex) {
+	                        this.pantalla.setText("Error: Formato inválido");
+	                    }
+	                }
+	            }
+	            break;
+	        case "C":
+	            // Reiniciar pantalla y valores
+	            this.pantalla.setText("");
+	            this.num1 = 0;
+	            this.num2 = 0;
+	            break;
+	        case "\u2190": // Botón de borrar un carácter
+	            if (!textoActual.isEmpty()) {
+	                this.pantalla.setText(textoActual.substring(0, textoActual.length() - 1));
+	            }
+	            break;
+	        default:
+	            break;
+	    }
 	}
+
+
 	
 	/**
 	 * Metodo que opera todo los posibles resultados
