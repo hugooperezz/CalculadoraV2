@@ -32,6 +32,7 @@ public class Engine extends JFrame implements ActionListener {
 	private JPanel displayPanel;
 	private JPanel botonesOperadores;
 	private JPanel botonesRegulares;
+	private JPanel botonesBase;
 
 	// Panel sur que contiene los botones
 	private JPanel buttonPanel;
@@ -56,17 +57,20 @@ public class Engine extends JFrame implements ActionListener {
 	private JButton reset;
 	private JButton eliminar;
 	private JButton coma;
+	private JButton base2;
+	private JButton base8;
+	private JButton base10;
+	private JButton base16;
 
 	// Tipos de boton
 	private enum ButtonType {
-		REGULAR, OPERATOR
+		REGULAR, OPERATOR, INFO, BASE
 	}
 
 	// Almacenar temporalmente ciertos valores
 	private double num1, num2, result;
 	private char operation;
-	private boolean resultadoMostrado = false; // Nuevo flag para saber si un resultado fue mostrado
-	
+
 	/**
 	 * 
 	 * 
@@ -76,8 +80,8 @@ public class Engine extends JFrame implements ActionListener {
 		super(msg);
 
 		// Contenedor principal
-		this.panelPrincipal = this.getContentPane();
-		this.panelPrincipal.setLayout(new BorderLayout());
+		this.frame = this;
+		this.frame.setLayout(new BorderLayout());
 
 		// Panel de arriba
 		this.displayPanel = new JPanel();
@@ -91,13 +95,21 @@ public class Engine extends JFrame implements ActionListener {
 		this.buttonPanel.setLayout(new FlowLayout());
 
 		// Configuro los botones
+		this.botonesBase = new JPanel();
 		this.botonesOperadores = new JPanel(new GridLayout(5, 3, 5, 5));
 		this.botonesRegulares = new JPanel(new GridLayout(5, 1, 5, 5));
 
 		// Inicializo los botones con el metodo
 		inicializarBotones();
-
+		
+		//Agregar botones base
+		this.botonesBase.add(this.base2);
+		this.botonesBase.add(this.base8);
+		this.botonesBase.add(this.base10);
+		this.botonesBase.add(this.base16);
+		
 		// Agregar botones numéricos
+		
 		this.botonesRegulares.add(this.n1);
 		this.botonesRegulares.add(this.n2);
 		this.botonesRegulares.add(this.n3);
@@ -114,12 +126,14 @@ public class Engine extends JFrame implements ActionListener {
 		this.botonesRegulares.add(this.coma);
 
 		// Agregar los botones de operaciones
+		
 		this.botonesOperadores.add(this.add);
 		this.botonesOperadores.add(this.subtract);
 		this.botonesOperadores.add(this.multiply);
 		this.botonesOperadores.add(this.divide);
 
 		// Agregar los botones a la ventana
+		this.buttonPanel.add(this.botonesBase, BorderLayout.SOUTH);
 		this.buttonPanel.add(this.botonesRegulares, BorderLayout.CENTER);
 		this.buttonPanel.add(this.botonesOperadores, BorderLayout.EAST);
 		this.buttonPanel.setSize(800, 500);
@@ -129,7 +143,7 @@ public class Engine extends JFrame implements ActionListener {
 		addActionEvent();
 
 		// Agrego los paneles al panel principal
-		this.panelPrincipal.add(this.buttonPanel);
+		this.frame.add(this.buttonPanel);
 		this.displayPanel.setLayout(new FlowLayout());
 
 		// Hacer visible la ventana
@@ -139,14 +153,15 @@ public class Engine extends JFrame implements ActionListener {
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 	}
-	
+
 	/**
 	 * SetSettings
 	 */
 	public void setSettings() {
 		// Propiedades de la ventana
+		this.frame.getContentPane().setBackground(Color.BLUE); // Arreglar
 		this.setLocation(50, 100);
-		this.setSize(500, 600);
+		this.setSize(500, 700);
 
 		// Configuracion de la pantalla
 		this.pantalla.setEditable(false);// Con este comando el usuario no va a poder escribir en la pantalla
@@ -159,7 +174,7 @@ public class Engine extends JFrame implements ActionListener {
 		this.pantalla.setBackground(Color.LIGHT_GRAY);// Fondo
 		this.pantalla.setForeground(Color.BLACK);// Texto
 		this.displayPanel.add(this.pantalla);
-		this.panelPrincipal.add(this.displayPanel, BorderLayout.NORTH);
+		this.frame.add(this.displayPanel, BorderLayout.NORTH);
 	}
 
 	/**
@@ -189,6 +204,12 @@ public class Engine extends JFrame implements ActionListener {
 		this.equal = createButton("=", ButtonType.OPERATOR);
 		this.reset = createButton("C", ButtonType.OPERATOR);
 		this.eliminar = createButton("\u2190", ButtonType.OPERATOR);
+		
+		//Botones de base
+		this.base2 = createButton("B2", ButtonType.BASE);
+		this.base8 = createButton("B8", ButtonType.BASE);
+		this.base10 = createButton("B10", ButtonType.BASE);
+		this.base16 = createButton("B16", ButtonType.BASE);
 
 	}
 
@@ -209,6 +230,10 @@ public class Engine extends JFrame implements ActionListener {
 			boton.setBackground(Color.LIGHT_GRAY);
 		} else if (tipo == ButtonType.REGULAR) {
 			boton.setBackground(Color.WHITE);
+		}else if (tipo == ButtonType.BASE) {
+			boton.setBackground(Color.GREEN);
+		} else if (tipo == ButtonType.INFO) {
+			boton.setBackground(Color.RED);
 		}
 		boton.setFont(new Font("Arial", Font.BOLD, 20)); // Fuente grande
 		boton.setFocusPainted(false); // Eliminar borde
@@ -234,64 +259,74 @@ public class Engine extends JFrame implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-	    String comando = e.getActionCommand(); // Contiene el contenido del botón
-	    String textoActual = this.pantalla.getText();
-	    switch (comando) {
-	        case "0": case "1": case "2": case "3": case "4": case "5":
-	        case "6": case "7": case "8": case "9": case ".":
-	            this.pantalla.setText(this.pantalla.getText() + comando);
-	            break;
-	        case "+": case "-": case "*": case "/":
-	        	if (!textoActual.isEmpty()) {
-	                if (textoActual.matches(".*[0-9.]$")) { // Si el texto termina en un número
-	                    this.pantalla.setText(textoActual + " " + comando + " ");
-	                } else {
-	                    this.pantalla.setText(textoActual.substring(0, textoActual.length() - 3) + " " + comando + " ");
-	                }
-	            } else if (this.num1 != 0) { // Usar el resultado previo como num1 si está disponible
-	                this.pantalla.setText(this.num1 + " " + comando + " ");
-	            }
-	            break;
-	        case "=":
-	            if (!this.pantalla.getText().isEmpty()) {
-	                // Separar la operación de la pantalla
-	                String[] partes = this.pantalla.getText().split(" ");
-	                if (partes.length == 3) { // Asegurar que hay formato correcto (num1 operador num2)
-	                    try {
-	                        this.num1 = Double.parseDouble(partes[0].replace(",", "."));
-	                        this.operation = partes[1].charAt(0);
-	                        this.num2 = Double.parseDouble(partes[2]);
-	                        if (this.operation == '/' && this.num2 == 0) {
-	                            this.pantalla.setText("Error: No se puede dividir entre 0");
-	                        } else {
-	                            this.result = operacion();
-	                            String resultadoReducido = String.format("%.2f", this.result); // Limitar a 2 decimales
-	                            this.pantalla.setText(resultadoReducido);
-	                        }
-	                    } catch (NumberFormatException ex) {
-	                        this.pantalla.setText("Error: Formato inválido");
-	                    }
-	                }
-	            }
-	            break;
-	        case "C":
-	            // Reiniciar pantalla y valores
-	            this.pantalla.setText("");
-	            this.num1 = 0;
-	            this.num2 = 0;
-	            break;
-	        case "\u2190": // Botón de borrar un carácter
-	            if (!textoActual.isEmpty()) {
-	                this.pantalla.setText(textoActual.substring(0, textoActual.length() - 1));
-	            }
-	            break;
-	        default:
-	            break;
-	    }
+		String comando = e.getActionCommand(); // Contiene el contenido del botón
+		String textoActual = this.pantalla.getText();
+		switch (comando) {
+		case "0":
+		case "1":
+		case "2":
+		case "3":
+		case "4":
+		case "5":
+		case "6":
+		case "7":
+		case "8":
+		case "9":
+		case ".":
+			this.pantalla.setText(this.pantalla.getText() + comando);
+			break;
+		case "+":
+		case "-":
+		case "*":
+		case "/":
+			if (!textoActual.isEmpty()) {
+				if (textoActual.matches(".*[0-9.]$")) { // Si el texto termina en un número
+					this.pantalla.setText(textoActual + " " + comando + " ");
+				} else {
+					this.pantalla.setText(textoActual.substring(0, textoActual.length() - 3) + " " + comando + " ");
+				}
+			} else if (this.num1 != 0) { // Usar el resultado previo como num1 si está disponible
+				this.pantalla.setText(this.num1 + " " + comando + " ");
+			}
+			break;
+		case "=":
+			if (!this.pantalla.getText().isEmpty()) {
+				// Separar la operación de la pantalla
+				String[] partes = this.pantalla.getText().split(" ");
+				if (partes.length == 3) { // Asegurar que hay formato correcto (num1 operador num2)
+					try {
+						this.num1 = Double.parseDouble(partes[0].replace(",", "."));
+						this.operation = partes[1].charAt(0);
+						this.num2 = Double.parseDouble(partes[2]);
+						if (this.operation == '/' && this.num2 == 0) {
+							this.pantalla.setText("Error: No se puede dividir entre 0");
+						} else {
+							this.result = operacion();
+							String resultadoReducido = String.format("%.2f", this.result); // Limitar a 2 decimales
+							this.pantalla.setText(resultadoReducido);
+						}
+					} catch (NumberFormatException ex) {
+						this.pantalla.setText("Error: Formato inválido");
+					}
+				}
+			}
+			break;
+		case "C":
+			// Reiniciar pantalla y valores
+			this.pantalla.setText("");
+			this.num1 = 0;
+			this.num2 = 0;
+			break;
+		case "\u2190": // Botón de borrar un carácter
+			if (!textoActual.isEmpty()) {
+				this.pantalla.setText(textoActual.substring(0, textoActual.length() - 1));
+			}
+			break;
+		default:
+			break;
+		}
 	}
 
-
-	
 	/**
 	 * Metodo que opera todo los posibles resultados
 	 * 
@@ -313,4 +348,3 @@ public class Engine extends JFrame implements ActionListener {
 
 	}
 }
-
