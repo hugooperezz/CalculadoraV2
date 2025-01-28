@@ -861,7 +861,11 @@ public class Engine extends JFrame implements ActionListener {
 		}
 
 	}
-
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public double operacionBinario() {
 		try {
 			// Convertir los valores de this.num1`y this.num2 a enteros
@@ -964,7 +968,11 @@ public class Engine extends JFrame implements ActionListener {
 		// Retornar el resultado octal como una cadena
 		return octal.toString();
 	}
-
+	
+	/**
+	 * 
+	 * @return
+	 */
 	public double operacionOctal() {
 		double resultado = 0;
 
