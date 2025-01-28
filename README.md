@@ -9,8 +9,13 @@ Este proyecto consiste en el desarrollo de una calculadora con interfaz gráfica
   - Resta (-)
   - Multiplicación (×)
   - División (÷)
+  - Base Binaria
+  - Base Octal
+  - Base Decimal
+  - Base Hexadecimal
 - **Botones funcionales**:
   - Números del 0 al 9.
+  - Letras Hexadecimal
   - Botón de coma para números decimales.
   - Botón para borrar la pantalla completa.
   - Botón para borrar el último número ingresado.
