@@ -21,4 +21,4 @@ Este proyecto consiste en el desarrollo de una calculadora con interfaz gráfica
 1. Clona este repositorio:
    ```bash
    git clone https://github.com/usuario/calculadora-java.git
-![Calculadora](fotoCalculadora.png)
+![Calculadora](Calculadora.png)
